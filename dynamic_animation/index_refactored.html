@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <title>Search Filtering</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="stylesheets/catalog.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- <script src="javascripts/search.js"></script> -->
+    <style>
+      body {
+        font: normal 14px Helvetica, Arial, sans-serif;
+        background: #780e24;
+      }
+
+      main {
+        width: 802px;
+        padding: 25px;
+        margin: 0 auto;
+        background: white;
+      }
+
+      #canvas {
+        position: relative;
+        width: 100%;
+        height: 600px;
+        border: 1px solid #cccccc;
+        background: linear-gradient(to bottom, #ffffff 0%, #0066cc 100%);
+      }
+
+      #canvas > div {
+        position: absolute;
+        z-index: 1;
+        width: 30px;
+        height: 30px;
+        background: red;
+      }
+
+      #canvas .circle {
+        border-radius: 100%;
+      }
+
+      #canvas .star {
+        background: transparent url("star.png");
+        background-size: 100% auto;
+      }
+
+      fieldset {
+        padding: 0;
+        margin 0;
+        border: none;
+      }
+
+      ul {
+        list-style: none;
+      }
+
+      dl {
+        padding: 0 0 20px 0;
+        margin: 0;
+      }
+
+      dt {
+        padding: 0 0 5px 0;
+      }
+
+      dd {
+        padding: 0 0 20px 0;
+        margin: 0;
+      }
+
+      input[type="number"] {
+        width 70px;
+        height: 30px;
+        padding: 5px 0 5px 5px;
+        font: normal 14px Helvetica, Arial, sans-serif;
+        box-sizing: border-box;
+      }
+
+
+
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <div id="canvas">
+
+      </div>
+      <p>
+        <a href="#" id="animate">Start</a>
+
+        <a href="#" id="stop">Stop</a>
+      </p>
+
+      <form action="#" method="POST">
+        <fieldset>
+          <h1>Add a shape</h1>
+          <h2>Type</h2>
+
+          <ul>
+            <li><label><input type="radio" value="square" name="shape_type" />Square</label></li>
+            <li><label><input type="radio" value="circle" name="shape_type" />Circle</label></li>
+            <li><label><input type="radio" value="star" name="shape_type" />Star</label></li>
+          </ul>
+
+          <dl>
+            <dt><label for="starting-x">Starting Point</label></dt>
+            <dd>
+              <input type="text" id="start_x" name="start_x" placeholder="X:" />
+              <input type="text" id="start_y" name="start_y" placeholder="Y:" />
+            </dd>
+            <dt><label for="ending-x">Ending position</label></dt>
+            <dd>
+              <input type="text" id="end_x" name="end_x" placeholder="X:" />
+              <input type="text" id="end_y" name="end_y" placeholder="Y:"/>
+            </dd>
+          </dl>
+          <p><input type="submit" /></p>
+        </fieldset>
+
+      </form>
+    </main>
+  <script>
+    var $form = $('form');
+    var $canvas = $('#canvas');
+
+
+
+    function getInitialInputs(form) {
+      var result = {};
+
+      form.serializeArray().forEach(function(input) {
+        var key = input.name;
+        result[key] = input.value;
+      });
+
+      return result;
+    }
+
+    function stopAnimations($element) {
+      $element.stop();
+    }
+
+    function createElement(data) {
+      var $element = $("<div />", {
+        "class": data.shape_type,
+        data: data,
+      })
+
+      reset($element);
+      return $element;
+    }
+
+    function reset($element) {
+      var data = $element.data();
+      $element.css({
+        left: Number(data.start_x),
+        top: Number(data.start_y),
+      })
+
+      stopAnimations($element);
+    }
+
+    function animateElement(idx) {
+      var data = $(this).data();
+
+      reset($(this));
+      $(this).animate({
+        left: Number(data.end_x),
+        top: Number(data.end_y),
+      }, 1000)
+    }
+
+    $form.on('submit', function(e) {
+      e.preventDefault();
+
+      var formData = getInitialInputs($(this));
+      $canvas.append(createElement(formData))
+    })
+
+    $('#animate').on('click', function(e) {
+      e.preventDefault();
+
+      $canvas.find('div').each(animateElement);
+    })
+
+    $('#stop').on('click', function(e) {
+      e.preventDefault();
+
+      var $children = $canvas.children();
+      stopAnimations($children);
+    })
+  </script>
+  </body>
+</html>

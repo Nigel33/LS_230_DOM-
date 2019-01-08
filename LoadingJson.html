@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+
+
+
+    <title>Test Page</title>
+
+  </head>
+  <body>
+    <script>
+    	document.addEventListener('DOMContentLoaded', function(event) {
+    		var request = new XMLHttpRequest();
+    		request.open('GET', 'https://api.github.com/repos/rails/rails');
+
+    		request.addEventListener('load', function(event) {
+    			try {
+    				var data = JSON.parse(request.response);
+	    		} catch(error) {
+	    			console.log('Cannot parse the received response as JSON.');
+	    		}
+    		})
+
+    		request.send();
+    	})
+    </script>
+  </body>
+</html>

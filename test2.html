@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Autocomplete!</title>
+    <style>
+      article + article {
+        display: none;
+      }
+    </style>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <body>
+   <ul>
+      <li><a href="#" data-block="gold">Gold Sponsors</a></li>
+      <li><a href="#" data-block="silver">Silver Sponsors</a></li>
+      <li><a href="#" data-block="bronze">Bronze Sponsors</a></li>
+    </ul>
+
+    <article id="gold" data-block="gold">
+      <h1>Gold Sponsors</h1>
+    </article>
+
+    <article data-block="silver">
+      <h1>Silver Sponsors</h1>
+    </article>
+
+    <article data-block="bronze">
+      <h1>Bronze Sponsors</h1>
+    </article>
+    <script>
+      var $anchor = $('a');
+
+      $anchor.on('click', function(e) {
+        e.preventDefault();
+
+        $('article').hide();
+        $('article[data-block=' + $(this).attr('data-block') + ']').show();
+      })
+
+      var article = document.getElementById('gold');
+
+      console.table(article.dataset);
+      article.dataset.block = 'silver';
+      console.table(article.dataset)
+    </script>
+  </body>
+</html>

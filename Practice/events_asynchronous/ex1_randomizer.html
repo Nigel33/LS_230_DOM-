@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+  <head>
+  	<body>
+  	<script>
+  		function callback1() {
+			  console.log('callback1');
+			}
+
+			function callback2() {
+			  console.log('callback2');
+			}
+
+			function callback3() {
+			  console.log('callback3');
+			}
+
+			function getRandomIntInclusive(min, max) {
+			  min = Math.ceil(min);
+			  max = Math.floor(max);
+			  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+			}
+
+			function randomizer(callbacks) {
+				var maxWindow = arguments.length * 2;
+				var randomTime;
+				var counter = 0;
+
+				var timer = setInterval(function() {
+					counter++
+					console.log(counter)
+				}, 1000);
+
+				[].slice.call(arguments).forEach(function(callback) {
+					randomTime = getRandomIntInclusive(0, maxWindow) * 1000;
+					setTimeout(callback, randomTime);
+				})
+
+				setTimeout(function() {clearInterval(timer)}, maxWindow * 1000);
+
+			}
+
+
+			randomizer(callback1, callback2, callback3);
+			// Output:
+			// 1
+			// 2
+			// "callback2"
+			// "callback3"
+			// 3
+			// 4
+			// 5
+			// "callback1"
+			// 6
+	  </script>
+  </body>
+
+
+
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+
+
+
+    <title>Test Page</title>
+
+  </head>
+  <body>
+    <script>
+    	function createProduct(productData) {
+        var json = JSON.stringify(productData);
+        var request = new XMLHttpRequest();
+
+        request.open('POST', 'http://ls-230-web-store-demo.herokuapp.com/v1/products');
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.setRequestHeader('Authorization', 'token AUTH_TOKEN');
+
+        request.addEventListener('load', function() {
+          console.log('This product was added ' + request.responseText);
+        })
+
+        request.send(json);
+      }
+
+      createProduct({
+        name: 'HB pencil',
+        sku: 'hbp100',
+        price: 50,
+      });
+
+
+    </script>
+  </body>
+</html>

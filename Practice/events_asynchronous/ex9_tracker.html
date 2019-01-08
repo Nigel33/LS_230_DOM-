@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Tests</title>
+    <meta charset="utf-8">
+    <style>
+     #red, #blue, #green, #orange {
+         cursor: pointer;
+         color: white;
+         padding: 10px;
+         margin: 10px;
+     }
+     #red {
+         width: 400px;
+         height: 400px;
+         background: red;
+     }
+
+     #blue {
+         width: 200px;
+         height: 200px;
+         background: blue;
+     }
+
+     #orange {
+         width: 100px;
+         height: 100px;
+         background: orange;
+     }
+
+     #green {
+         width: 50px;
+         height: 50px;
+         background: green;
+     }
+    </style>
+  </head>
+  <body>
+    <div id="red">Red
+      <div id="blue">Blue</div>
+      <div id="orange">Orange
+        <div id="green">Green</div>
+      </div>
+    </div>
+    <script>
+	    var divRed = document.querySelector('#red');
+			var divBlue = document.querySelector('#blue');
+			var divOrange = document.querySelector('#orange');
+			var divGreen = document.querySelector('#green');
+
+			var tracker = (function() {
+				var collection = [];
+
+				return {
+					list: function() {
+						return [].slice.call(collection);
+					},
+
+					add: function(activity) {
+						collection.push(activity);
+					},
+
+					elements: function() {
+						return collection;
+					},
+
+					clear: function() {
+						collection.length = 0;
+					}
+				}
+			})();
+
+			function track(callback) {
+				return function(event) {
+					callback(event);
+
+					if (!event.tracked) {
+						event.tracked = true;
+						tracker.add(event.target)
+					}
+				}
+			}
+
+			divRed.addEventListener('click', track(function() {
+			  document.body.style.background = 'red';
+			  alert('gfg1')
+			}));
+
+			divBlue.addEventListener('click', track(function() {
+			  event.stopPropagation();
+			  document.body.style.background = 'blue';
+			  alert('gfg2')
+
+			}));
+
+			divOrange.addEventListener('click', track(function() {
+			  document.body.style.background = 'orange';
+			  alert('gfg3')
+			}));
+
+			divGreen.addEventListener('click', track(function() {
+			  document.body.style.background = 'green';
+			  alert('gfg4')
+			}));
+    </script>
+  </body>
+</html>
+
+
+

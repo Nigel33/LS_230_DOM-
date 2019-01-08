@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      dl {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      dt {
+        text-align: right;
+        width: 22%;
+        padding: 0 10px  10px 0;
+
+      }
+
+      dd {
+        margin: 0;
+        width: 66%;
+      }
+    </style>
+    <title>Autocomplete!</title>
+    <script>
+      function populateSchedule(data) {
+        var form = document.getElementById('schedule');
+
+        var instructorsRequest = new XMLHttpRequest();
+        instructorsRequest.open('GET', '/api/staff_members');
+        instructorsRequest.responseType = 'json';
+        instructorsRequest.send();
+
+        instructorsRequest.addEventListener('load', function(event) {
+          var jsonData = instructorsRequest.response;
+          data.forEach(function(schedule) {
+            var option = document.createElement('option');
+            var instructorName = getInstructorName(schedule.staff_id, jsonData);
+
+            option.value = schedule.id;
+            option.textContent = `${instructorName} | ${schedule.date} | ${schedule.time}`;
+            form.appendChild(option);
+          })
+        });
+      }
+
+      function getInstructorName(id, instructors) {
+        var result;
+        return [].slice.call(instructors).filter(function(instructor) {
+          return instructor.id === id;
+        })[0].name;
+      }
+
+    </script>
+  <body>
+    <h2>Schedules</h2>
+
+    <form method="POST" action="">
+      <fieldset>
+        <dl>
+          <dt><label for="schedule">Please select one schedule:</label></dt>
+          <dd><select name=schedule id="schedule"></select></dd>
+
+          <dt><label for="email">Email:</label></dt>
+          <dd><input type="text" id="email" name="email" /></dd>
+        </dl>
+      </fieldset>
+    </form>
+    <script>
+      document.addEventListener('DOMContentLoaded', function(event) {
+        var scheduleRequest = new XMLHttpRequest();
+        scheduleRequest.open('GET', '/api/schedules');
+        scheduleRequest.responseType = 'json';
+        scheduleRequest.send();
+
+        scheduleRequest.addEventListener('load', function(event) {
+          var jsonData = scheduleRequest.response;
+          var availableSchedule = jsonData.filter(function(schedule) {
+            return !schedule.student_email;
+          });
+
+          populateSchedule(availableSchedule);
+        });
+      })
+    </script>
+  </body>
+
+</html>

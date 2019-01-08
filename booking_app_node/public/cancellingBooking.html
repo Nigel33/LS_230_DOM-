@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      ul {
+        list-style: none;
+      }
+
+      ul li::before {
+        content: "\2022";
+        font-weight: bold;
+        display: inline-block;
+        margin-left: -1em;
+        padding-right: 10px;
+      }
+
+      li.indent::before {
+        margin-left: 0px;
+        content: "\03bf";
+      }
+    </style>
+    <title>Autocomplete!</title>
+   <body>
+    <h2>Schedules</h2>
+
+    <ul id="schedules"></ul>
+    <script>
+      function cancelSchedule(id) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE', `api/schedules/${id}`);
+        xhr.send();
+
+        xhr.addEventListener('load', function(event) {
+          alert(`Schedule ${id} has been cancelled`);
+        })
+      }
+
+      cancelSchedule(9);
+
+
+
+    </script>
+  </body>
+
+</html>

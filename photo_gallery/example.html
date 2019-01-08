@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Fluid Layout Gallery</title>
+    <meta charset="UTF-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="gallery.css" />
+  </head>
+  <body>
+    <main>
+      <h1>My Photo Gallery</h1>
+      <div class="slideshow">
+        <figure class="visible">
+          <img src="http://placehold.it/1200x900/fff/333" alt="" />
+          <figcaption>Photo 1</figcaption>
+        </figure>
+        <figure>
+          <img src="http://placehold.it/1200x900/66cc33/fofofo" alt="" />
+          <figcaption>Photo 2</figcaption>
+        </figure>
+        <figure>
+          <img src="http://placehold.it/1200x900/993535/aaa" alt="" />
+          <figcaption>Photo 3</figcaption>
+        </figure>
+        <figure>
+          <img src="http://placehold.it/1200x900" alt="" />
+          <figcaption>Photo 4</figcaption>
+        </figure>
+
+        <ul>
+          <li class="active">
+            <a href="#"><img src="http://placehold.it/1200x900/fff/333" alt="" /></a>
+          </li>
+          <li><a href="#"><img src="http://placehold.it/1200x900/66cc33/fofofo" alt="" /></a></li>
+          <li><a href="#"><img src="http://placehold.it/1200x900/993535/aaa" alt="" /></a></li>
+          <li><a href="#"><img src="http://placehold.it/1200x900" alt="" /></a></li>
+        </ul>
+      </div>
+    </main>
+  </body>
+  <script>
+    // $(window).load(function() {
+    //   var $thumbnails = $('li img');
+    //   var index;
+    //   var $figures;
+    //   var currentFigure
+
+    //   $thumbnails.on('click', function(event) {
+    //     event.preventDefault();
+
+    //     index = $thumbnails.index(this);
+    //     $figures = $('.slideshow figure');
+    //     $figures.filter(':visible').fadeOut(100);
+    //     $figures.eq(index).fadeIn(100);
+    //   })
+    // })
+
+    var $slideshow = $('.slideshow');
+    var $nav = $slideshow.find('ul');
+
+    $nav.on('click', 'a', function(event) {
+      event.preventDefault();
+      var $li = $(event.currentTarget).closest('li');
+      var idx = $li.index();
+
+      $slideshow.find('figure').filter(':visible').fadeOut(300).end().eq(idx).delay(300).fadeIn(300);
+
+    })
+
+  </script>
+</html>

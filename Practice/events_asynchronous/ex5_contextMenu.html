@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+  	<style>
+  		main, #sub {
+			  padding: 15px;
+			}
+			main {
+			  width: 100%;
+			  height: 200px;
+			  background: blue;
+			  color: white;
+			}
+
+			#sub {
+			  position: relative;
+			  top: 100px;
+			  left: 15px;
+			  background: red;
+			  height: 50px;
+			  width: 50%;
+			}
+  	</style>
+    <meta charset="utf-8">
+    <title>Bold Element + Custom</title>
+  </head>
+  <body>
+    <main>
+		  Main Area
+		  <section id="sub">
+		    Sub Area
+		  </section>
+		</main>
+
+		<script>
+			var main = document.querySelector('main');
+			var sub = document.querySelector('#sub');
+
+			main.addEventListener('contextmenu', function(event) {
+				event.preventDefault()
+				alert(event.currentTarget.tagName);
+			});
+
+			sub.addEventListener('contextmenu', function(event) {
+				event.stopPropagation();
+				event.preventDefault();
+				alert(event.currentTarget.tagName);
+			});
+
+    </script>
+  </body>
+</html>
+
+
+
+</html>

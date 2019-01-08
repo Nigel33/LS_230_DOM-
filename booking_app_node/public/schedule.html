@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Autocomplete!</title>
+    <style>
+       dl {
+         padding: 0.5em;
+     }
+     dt {
+         float: left;
+         clear: left;
+         width: 100px;
+         text-align: right;
+         font-weight: bold;
+         color: #f0595b;
+     }
+     dt::after {
+         content: ":";
+     }
+     dd {
+         margin: 0 0 0 110px;
+         padding: 0 0 0.5em 0;
+     }
+    </style>
+    <!-- <link rel="stylesheet" href="/stylesheets/normalize.css">
+    <link rel="stylesheet" href="stylesheets/autocomplete.css"> -->
+    <script>
+      function createNewTemplate(resource) {
+        var container = document.createElement('div');
+        var legend = document.createElement('legend');
+        legend.textContent = `Schedule ${resource.number}`;
+        container.appendChild(legend);
+        var dl = document.createElement('dl');
+
+        var dtStaff = document.createElement('dt');
+        var dtLabelStaff = document.createElement('label');
+        dtLabelStaff.textContent = 'Staff Name';
+        dtLabelStaff.setAttribute('for', `staff_${resource.number}`);
+        dtStaff.appendChild(dtLabelStaff);
+        dl.appendChild(dtStaff);
+
+        var ddStaff = document.createElement('dd');
+        var staffInput = document.createElement('select');
+        staffInput.setAttribute('name', `staff_${resource.number}`);
+        staffInput.setAttribute('id', `staff_${resource.number}`);
+
+        resource.staff.forEach(function (person) {
+          var option = document.createElement('option');
+          option.value = person.id
+          option.textContent = person.name;
+          staffInput.appendChild(option);
+        });
+        ddStaff.appendChild(staffInput);
+        dl.appendChild(ddStaff);
+
+        var dtDate = document.createElement('dt');
+        var dtLabelDate = document.createElement('label');
+        dtLabelDate.textContent = 'Date';
+        dtLabelDate.setAttribute('for', `date_${resource.number}`);
+        dtDate.appendChild(dtLabelDate);
+        dl.appendChild(dtDate);
+
+        var ddDate = document.createElement('dd');
+        var dateInput = document.createElement('input');
+        dateInput.setAttribute('name', `date_${resource.number}`);
+        dateInput.setAttribute('id', `date_${resource.number}`);
+        dateInput.setAttribute('type', 'text');
+        dateInput.setAttribute('placeholder', 'mm-dd-yy');
+        ddDate.appendChild(dateInput);
+        dl.appendChild(ddDate);
+
+        var dtTime = document.createElement('dt');
+        var dtLabelTime = document.createElement('label');
+        dtLabelTime.textContent = 'Time';
+        dtTime.appendChild(dtLabelTime);
+        dl.appendChild(dtTime);
+
+        var ddTime = document.createElement('dd');
+        var timeInput = document.createElement('input');
+        timeInput.setAttribute('name', `time_${resource.number}`);
+        timeInput.setAttribute('id', `time_${resource.number}`);
+        timeInput.setAttribute('type', 'text');
+        timeInput.setAttribute('placeholder', 'hh:mm');
+        ddTime.appendChild(timeInput);
+        dl.appendChild(ddTime);
+
+        container.appendChild(dl);
+        return container;
+      };
+
+      var staff = [];
+      var scheduleCount = 0;
+
+      (function getAllStaff() {
+        var request = new XMLHttpRequest();
+        request.open('GET', '/api/staff_members');
+        request.send();
+
+        request.addEventListener('load', function(event) {
+          staff = JSON.parse(request.response);
+        });
+      })();
+
+      function obtainFormData(form) {
+        var result = {schedules: []};
+        var container = {};
+
+        for (var i = 0; i < scheduleCount; i++) {
+          container['staff_id'] = form[`staff_${String(i + 1)}`].value;
+          container['date'] = form[`date_${String(i + 1)}`].value;
+          container['time'] = form[`time_${String(i + 1)}`].value;
+          result.schedules.push(container);
+          container = {};
+        }
+
+        return result;
+      }
+
+
+
+      document.addEventListener('DOMContentLoaded', function(event) {
+        var form = document.querySelector('form');
+        var schedule = document.getElementById('schedules');
+        var addSchedule = document.getElementById('btnAdd');
+
+        addSchedule.addEventListener('click', function(event) {
+          event.stopPropagation();
+          scheduleCount++;
+          var border = document.createElement('fieldset');
+          border.setAttribute('id', 'schedule_' + String(scheduleCount));
+          border.appendChild(createNewTemplate({
+            number: scheduleCount,
+            staff: staff
+          }));
+
+          schedule.appendChild(border);
+        });
+
+        form.addEventListener('submit', function(event) {
+          event.preventDefault();
+          var json = JSON.stringify(obtainFormData(form));
+
+          var request = new XMLHttpRequest();
+          request.open('POST', form.action);
+          request.setRequestHeader('Content-Type', 'application/json');
+          request.send(json)
+
+          request.addEventListener('load', function(event) {
+            switch (request.status) {
+              case 201:
+              alert(json)
+                form.reset();
+                alert(request.response);
+                break
+              case 400:
+                alert(request.response);
+            }
+          })
+
+        })
+
+
+      });
+    </script>
+  </head>
+  <body>
+    <button id="btnAdd">Add more schedules</button>
+    <form method="post" action="/api/schedules">
+      <div id="schedules"></div>
+        <input id="btnSubmit" type="submit">
+    </form>
+  </body>
+</html>

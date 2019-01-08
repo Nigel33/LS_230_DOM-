@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+
+    <meta charset="utf-8">
+    <title>Bold Element + Custom</title>
+  </head>
+  <body>
+    <form id="selection-filters" method="post" action="#">
+		  <select id="animal-classifications">
+		    <option value="Classifications" selected>Classifications</option>
+		    <option value="Vertebrate">Vertebrate</option>
+		    <option value="Warm-blooded">Warm-blooded</option>
+		    <option value="Cold-blooded">Cold-blooded</option>
+		    <option value="Mammal">Mammal</option>
+		    <option value="Bird">Bird</option>
+		  </select>
+		  <select id="animals">
+		    <option value="Animals" selected>Animals</option>
+		    <option value="Bear">Bear</option>
+		    <option value="Turtle">Turtle</option>
+		    <option value="Whale">Whale</option>
+		    <option value="Salmon">Salmon</option>
+		    <option value="Ostrich">Ostrich</option>
+		  </select>
+		  <button id="clear">Clear</button>
+		</form>
+
+		<script>
+			var selectionFilters = document.querySelector('#selection-filters');
+			var animalClassifications = selectionFilters.querySelector('#animal-classifications');
+			var animals = selectionFilters.querySelector('#animals');
+			var clearButton = document.querySelector('#id');
+
+			var linkedTable = {
+				'animal-classifications': {
+					'Vertebrate': ['Bear', 'Turtle', 'Whale', 'Salmon', 'Ostrich'],
+					'Warm-blooded': ['Bear', 'Whale', 'Ostrich'],
+			    'Cold-blooded': ['Salmon', 'Turtle'],
+			    Mammal: ['Bear', 'Whale'],
+			    Bird: ['Ostrich'],
+				},
+				'animals': {
+					Bear: ['Vertebrate', 'Warm-blooded', 'Mammal'],
+			    Turtle: ['Vertebrate', 'Cold-blooded'],
+			    Whale: ['Vertebrate', 'Warm-blooded', 'Mammal'],
+			    Salmon: ['Vertebrate', 'Cold-blooded'],
+			    Ostrich: ['Vertebrate', 'Warm-blooded', 'Bird'],
+			  },
+			};
+
+			function setValues(key, type) {
+				var dataArray = linkedTable[type.id][key];
+				var length = dataArray.length;
+				var list;
+
+				if (type.id === 'animal-classifications') {
+					list = animals;
+				} else if (type.id === 'animals') {
+					list = animalClassifications;
+				}
+
+				list.options.length = 0;
+				for (var i = 0; i < length; i++) {
+					list.options[i] = new Option(dataArray[i]);
+				}
+			}
+
+			animalClassifications.addEventListener('change', function(event) {
+				var selection = this.value;
+				setValues(selection, this);
+			})
+
+			animals.addEventListener('change', function(event) {
+				var selection = this.value;
+				setValues(selection, this);
+			})
+
+			clearButton.addEventListener('click', function(event) {
+				selectionFilters.reset();
+			})
+
+
+    </script>
+  </body>
+</html>
+
+
+
+</html>

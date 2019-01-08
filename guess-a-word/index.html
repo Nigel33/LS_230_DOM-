@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <title>Guess-a-word</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="stylesheets/game.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>
+       function getRandomIntInclusive(min, max) {
+          min = Math.ceil(min);
+          max = Math.floor(max);
+          return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+        }
+
+        var randomWord = (function() {
+          var wordArray = ['stipend', 'glamor', 'pencil', 'arbiter'];
+
+          return function() {
+            var randomIdx = getRandomIntInclusive(0, wordArray.length - 1);
+            var result = wordArray[randomIdx];
+            wordArray.splice(randomIdx, 1);
+
+            return result;
+          }
+        })()
+
+      function findMatches(char) {
+        var regex = new RegExp(char, 'g');
+        var word = gameInstance.word;
+        var myArray;
+        var result = [];
+
+        trackKey(char)
+
+        while ((myArray = regex.exec(word)) !== null) {
+          result.push(regex.lastIndex - 1);
+        }
+
+        updateStatus(result.length);
+
+        return result;
+      }
+
+      function trackKey(key) {
+        gameInstance.lettersGuessed.push(key);
+        $guesses.append("<span>" + key + "</span");
+      }
+
+      function updateStatus(number) {
+        gameInstance.correct_spaces += number;
+      }
+
+      function handleResult(matches) {
+        var array = gameInstance.lettersGuessed;
+        var mostRecentChar = array[array.length - 1];
+
+        if (matches.length > 0) {
+          matches.forEach(function(idx){
+            $letters.find('span').get(idx).textContent = mostRecentChar;
+          })
+        } else {
+          handleMismatch();
+        }
+      }
+
+      function handleMismatch() {
+        gameInstance.incorrectGuesses++;
+        //apple function
+      }
+
+      function returnGameProgress() {
+        var win = (gameInstance.word.length === gameInstance.correct_spaces)? 'win' : null;
+        var lose = (gameInstance.incorrectGuesses === 6)? 'lose' : null;
+        var condition = (win || lose)
+
+        return condition;
+      }
+
+      function endGame(status) {
+        var message;
+        var condition;
+
+        if (status === 'win') {
+          message = 'congrats';
+        } else if (status === 'lose') {
+          message = 'lose';
+        }
+
+        $body.addClass(status);
+        $message.text(message);
+        unbindKeyPress(status);
+        $replay.toggle(!!status);
+      }
+
+      function unbindKeyPress(trigger) {
+        if (trigger) {
+          $(document).off('keypress');
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <div id="tree">
+        <div id="apples"></div>
+      </div>
+      <p id="message"></p>
+      <p><a id="replay" href="#">Play another</a></p>
+
+      <div id="spaces">
+        <h2>Word:</h2>
+      </div>
+
+      <div id="guesses">
+        <h2>Guesses:</h2>
+      </div>
+    </main>
+    <script src="javascripts/game.js"></script>
+  </body>
+  <script>
+    var $message = $('#message');
+    var $letters = $('#spaces');
+    var $guesses = $('#guesses');
+    var $replay = $('#replay');
+    var $apples = $('#apples.guess_1');
+    var $body = $('body');
+
+    var GameObject = function() {
+      this.word = randomWord();
+      this.incorrectGuesses = 0;
+      this.totalAllowedIncorrects = 6;
+      this.lettersGuessed = [];
+      this.correct_spaces = 0;
+      this.init();
+    }
+
+    GameObject.prototype.displayMessage = function(message) {
+      $message.text(message);
+    }
+
+    GameObject.prototype.checkWord = function() {
+      if (!this.word) {
+        this.displayMessage("Sorry, we've run out of words!");
+        return false
+      } else {
+        this.displayMessage("Game on");
+        return true;
+      }
+    }
+
+
+    GameObject.prototype.createBlanks = function() {
+      var length = this.word.split('').length + 1;
+      var spaces = new Array(length).join('<span></span>');
+      $letters.find('span').remove();
+      $letters.append(spaces);
+    }
+
+
+    GameObject.prototype.init = function() {
+      if (this.checkWord()) {
+        this.createBlanks();
+      }
+    }
+
+    var gameInstance = new GameObject();
+
+    (function() {
+      resetBinding();
+    })();
+
+    function resetBinding() {
+      $(document).on('keypress', function(e) {
+        e.preventDefault();
+        var key = e.key;
+        var valid = key.match(/[a-z]/gi);
+        var newKey = !gameInstance.lettersGuessed.includes(key);
+        var conditions;
+
+        if (valid && newKey) {
+          var matches = findMatches(key);
+          handleResult(matches);
+          conditions = returnGameProgress();
+          endGame(conditions);
+        }
+      })
+    }
+
+    function createNewGame() {
+      gameInstance = new GameObject;
+      $body.removeClass();
+      $replay.hide();
+      $guesses.find('span').remove();
+    }
+
+    $replay.on('click', function(e) {
+      createNewGame()
+      resetBinding();
+    })
+  </script>
+</html>

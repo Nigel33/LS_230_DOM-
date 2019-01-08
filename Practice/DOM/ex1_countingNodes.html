@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <title>Empty Page</title>
+  </head>
+  <body>
+    <div>
+      <p>Then press the <em>Draw</em> button</p>
+    </div>
+
+   <script>
+      var count = 0;
+
+      function walk(callback, node) {
+        callback(node)
+
+        for (var i = 0; i < node.childNodes.length; i++) {
+          var point = node.childNodes[i];
+          walk(callback, point);
+        }
+      }
+
+      function counter() {
+        count++
+      }
+
+      walk(counter, document.body);
+      console.log(count);
+      console.log(document.querySelector('div').firstChild);
+  </script>
+  </body>
+</html>

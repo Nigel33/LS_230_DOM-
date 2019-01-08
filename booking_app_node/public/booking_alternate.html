@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      dl {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      dt {
+        text-align: right;
+        width: 22%;
+        padding: 0 10px  10px 0;
+
+      }
+
+      dd {
+        margin: 0;
+        width: 66%;
+      }
+    </style>
+    <title>Autocomplete!</title>
+   <body>
+    <h2>Schedules</h2>
+
+    <form method="POST" action="/api/bookings">
+      <fieldset>
+        <dl>
+          <dt><label for="id">Please select one schedule:</label></dt>
+          <dd><select name="id" id="id"></select></dd>
+
+          <dt><label for="student_email">Email:</label></dt>
+          <dd><input type="text" id="student_email" name="student_email" /></dd>
+        </dl>
+      </fieldset>
+      <input type="submit" id="btn_submit" />
+    </form>
+    <script>
+      function addInstructorNamesToSchedules(schedules, staffs) {
+        function getStaffNameFromId(staffs, id) {
+          return staffs.filter(function (staff) {
+            return staff.id === id;
+          })[0].name;
+        }
+
+        schedules.map(function (schedule) {
+          schedule.staff_name = getStaffNameFromId(staffs, schedule.staff_id);
+        });
+      }
+
+      function populateDropdown(schedules) {
+        var dropDown = document.getElementById('id');
+
+        schedules.forEach(function (schedule) {
+          var option = document.createElement('option');
+          option.value = schedule.id;
+          option.textContent = `${schedule.staff_name} | ${schedule.date} | ${schedule.time}`;
+          dropDown.appendChild(option);
+        })
+      }
+
+      function convertToJson(data) {
+        var result = {};
+        for (key of data.entries()) {
+          result[key[0]] = key[1];
+        }
+
+        return result;
+      }
+
+      function openPostRequest() {
+        var formData = new FormData(this);
+        var jsonData = JSON.stringify(convertToJson(formData));
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', this.action);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        return {request: xhr, data: jsonData};
+      }
+
+      function createNewStudentForm(data) {
+        var newStudentForm = document.createElement('form');
+        newStudentForm.setAttribute('method', 'post');
+        newStudentForm.setAttribute('action', '/api/students');
+        newStudentForm.setAttribute('id', 'newStudentForm');
+
+        var h1 = document.createElement('h1');
+        h1.textContent = 'Please provide new student details';
+        newStudentForm.appendChild(h1);
+
+        var emailLabel = document.createElement('label');
+        emailLabel.textContent = 'Email:';
+        emailLabel.setAttribute('for', 'email');
+        newStudentForm.appendChild(emailLabel);
+
+        var emailInput = document.createElement('input');
+        emailInput.setAttribute('type', 'email');
+        emailInput.setAttribute('name', 'email');
+        emailInput.setAttribute('id', 'email');
+        emailInput.setAttribute('value', data.student_email);
+        newStudentForm.appendChild(emailInput);
+        newStudentForm.appendChild(document.createElement('br'));
+
+        var nameLabel = document.createElement('label');
+        nameLabel.textContent = 'Name:';
+        nameLabel.setAttribute('for', 'name');
+        newStudentForm.appendChild(nameLabel);
+
+        var nameInput = document.createElement('input');
+        nameInput.setAttribute('type', 'text');
+        nameInput.setAttribute('name', 'name');
+        nameInput.setAttribute('id', 'name');
+        newStudentForm.appendChild(nameInput);
+        newStudentForm.appendChild(document.createElement('br'));
+
+        var bookingSequenceLabel = document.createElement('label');
+        bookingSequenceLabel.textContent = 'Booking Sequence:';
+        bookingSequenceLabel.setAttribute('for', 'booking_sequence');
+        newStudentForm.appendChild(bookingSequenceLabel);
+
+        var bookingSequenceInput = document.createElement('input');
+        bookingSequenceInput.setAttribute('type', 'text');
+        bookingSequenceInput.setAttribute('name', 'booking_sequence');
+        bookingSequenceInput.setAttribute('id', 'booking_sequence');
+        bookingSequenceInput.setAttribute('value', data.booking_sequence);
+        newStudentForm.appendChild(bookingSequenceInput);
+        newStudentForm.appendChild(document.createElement('br'));
+
+        var submitInput = document.createElement('input');
+        submitInput.setAttribute('type', 'submit');
+        newStudentForm.appendChild(submitInput);
+        document.querySelector('body').appendChild(newStudentForm);
+     }
+
+
+      var form = document.querySelector('form');
+      var schedules;
+      var staffs;
+
+      (function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/schedules');
+        xhr.responseType = 'json';
+        xhr.send();
+        var x = 'fdf'
+        xhr.addEventListener('load', function(event) {
+          schedules = xhr.response;
+          schedules = schedules.filter(function(schedule) {
+            return !schedule.student_email;
+          });
+
+          (function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/staff_members');
+            xhr.responseType = 'json';
+            xhr.send();
+            xhr.addEventListener('load', function(event) {
+              staffs = xhr.response;
+              addInstructorNamesToSchedules(schedules, staffs);
+              populateDropdown(schedules);
+            })
+          })();
+        });
+      })();
+
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var bookingXHR = openPostRequest.call(this);
+
+        var bookingData = bookingXHR.data;
+        bookingXHR.request.send(bookingData);
+        bookingXHR.request.addEventListener('load', function(event) {
+          switch (this.status) {
+            case 204:
+              alert('Schedule successfully booked!');
+              break;
+            case 404:
+              var sequence = Number(this.responseText.match(/\d/g).join(''));
+              var studentData = {student_email: JSON.parse(bookingData).student_email, booking_sequence: sequence};
+              var studentForm;
+
+              createNewStudentForm(studentData);
+              studentForm = document.getElementById('newStudentForm');
+
+              studentForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                var studentXHR = openPostRequest.call(this);
+                studentXHR.request.send(studentXHR.data);
+
+                studentXHR.request.addEventListener('load', function(event) {
+                   if (this.status === 201) {
+                    var bookingXHR = openPostRequest.call(form)
+                    var bookingData = bookingXHR.data
+                    bookingXHR.request.send(bookingData);
+
+                    bookingXHR.request.addEventListener('load', function(event) {
+                      alert(this.response);
+                    });
+                  }
+                });
+              });
+          }
+        })
+      })
+
+
+    </script>
+  </body>
+
+</html>
